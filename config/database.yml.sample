@@ -1,0 +1,7 @@
+development:
+  adapter: postgresql
+  database: lobsters
+
+test:
+  adapter: postgresql
+  database: lobsters_test
