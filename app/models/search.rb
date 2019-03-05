@@ -104,11 +104,11 @@ class Search
         base = with_stories_in_domain(base, domain)
       end
 
-      title_match_sql = Arel.sql("MATCH(stories.title) AGAINST('#{qwords}' IN BOOLEAN MODE)")
+      title_match_sql = Arel.sql("stories.title ILIKE '%#{qwords}%'")
       description_match_sql =
-        Arel.sql("MATCH(stories.description) AGAINST('#{qwords}' IN BOOLEAN MODE)")
+        Arel.sql("stories.description ILIKE '%#{qwords}%'")
       story_cache_match_sql =
-        Arel.sql("MATCH(stories.story_cache) AGAINST('#{qwords}' IN BOOLEAN MODE)")
+        Arel.sql("stories.story_cache ILIKE '%#{qwords}%'")
 
       if qwords.present?
         base.where!(
@@ -135,13 +135,7 @@ class Search
 
       case self.order
       when "relevance"
-        if qwords.present?
-          self.results.order!(Arel.sql("((#{title_match_sql}) * 2) DESC, " +
-                                       "((#{description_match_sql}) * 1.5) DESC, " +
-                                       "(#{story_cache_match_sql}) DESC"))
-        else
-          self.results.order!("stories.created_at DESC")
-        end
+        self.results.order!("stories.created_at DESC")
       when "newest"
         self.results.order!("stories.created_at DESC")
       when "points"
@@ -209,10 +203,5 @@ class Search
         end
       end
     end
-
-  rescue ActiveRecord::StatementInvalid
-    # this is most likely bad boolean chars
-    self.results = []
-    self.total_results = -1
   end
 end
