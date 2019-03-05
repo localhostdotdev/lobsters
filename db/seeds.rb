@@ -1,4 +1,5 @@
 pwd = SecureRandom.base58
+
 User.create(
   :username => "inactive-user",
   :email => "inactive-user@example.com",
